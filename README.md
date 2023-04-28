@@ -1,5 +1,5 @@
 # ordered-cache
-Implementation of several cache data structures that maintain ordering on the key. In particular, Move-to-root tree (introduced by [Allen and Munro](https://dl.acm.org/doi/10.1145/322092.322094)) and Attach-and-splay tree are the main components of a paper I co-authored ([not available yet]()). The purpose of this program is to evaluate 
+Implementation of several cache data structures that maintain ordering on the key. In particular, Move-to-root tree (introduced by [Allen and Munro](https://dl.acm.org/doi/10.1145/322092.322094)) and Attach-and-splay tree are the main components of a paper I co-authored ([not available yet]()). The purpose of this program is to evaluate the performance of ordered cache data structures.
 
 | Name | Codename | Restructuring Heuristic | Leaf Queue
 | - | - | - | - |
@@ -8,6 +8,8 @@ Implementation of several cache data structures that maintain ordering on the ke
 | Attach-and-splay Tree | ```ast``` | single rotation then promote to the root with double rotations | yes
 | Move-to-root Tree | ```mtr``` | promote to the root with single rotations | yes
 | Simple Exchange Tree | ```se``` | one single rotation | yes
+
+An LRU cache is also implemented (Codename ```lru```) and a fixed cache (Codename ```fc```) where the container is untouched once it is full.
 
 # Compilation
 
@@ -32,7 +34,7 @@ The input stream must be of the following format (one key per line):
 | - | - | - |
 | ```<path>``` | string | path the dataset folder (must end with "/") |
 | ```<dataset>```| string | filename of the dataset (must be inside ```<path>```) |
-| ```<n>``` | int | capacity |
+| ```<n>``` | int | maximum number of key stored |
 | ```<model>``` | string |  codename of the model |
 | ```<ranking>``` | ```0``` or ```1``` | ```1``` to activate tracking mode |
 | ```<prefix>``` | ```0``` or ```1``` | ```1``` to activate the prefix queries |
