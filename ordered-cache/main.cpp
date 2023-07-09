@@ -1,7 +1,5 @@
 #include <memory>
 
-#include "CacheBase.hpp"
-
 #include "HashModels/LRU.hpp"
 #include "HashModels/OrderedLRU.hpp"
 #include "HashModels/FixedCache.hpp"

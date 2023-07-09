@@ -3,8 +3,20 @@
 LRU::LRU(int capacity)
 : CacheBase(capacity)
 {
-    m_map.clear();
-    m_queue.clear();
+    m_block = new ListNode[m_capacity];
+    m_front = nullptr;
+    m_back = nullptr;
+    
+    for (int i = 0; i < m_capacity; i++)
+    {
+        m_block[i].previous = nullptr;
+        m_block[i].next     = nullptr;
+    }    
+}
+
+LRU::~LRU()
+{    
+    delete [] m_block;
 }
 
 void LRU::insert(const std::string &key)
@@ -15,27 +27,57 @@ void LRU::insert(const std::string &key)
     
     TimerMeasure START = Timer::now();
     
-    auto it = m_map.find(key);
-    bool hit = (it != m_map.end());
+    std::unordered_map<std::string, ListNode*>::iterator hint = m_map.find(key);
+    bool hit = (hint != m_map.end());
     
-    if (hit)
+    /*
+     Select a node
+     */
+    
+    ListNode* node;
+    
+    if (!hit)
     {
-        m_queue.erase(it->second);
-        m_map.erase(it);
+        if (m_size < m_capacity)
+        {
+            node = &m_block[m_size];
+            m_size++;
+        }
+        else
+        {
+            node = m_back;
+            
+            m_map.erase(node->key);
+            
+            // Tracking
+            if (m_tracking) t_deleted_ranks[100]++;
+        }
+        
+        m_map[key] = node;
+    }
+    else
+    {
+        node = hint->second;
         
         // Tracking
         if (m_size == m_capacity) t_hits++;
     }
     
-    m_queue.push_front(key);
-    m_map.insert(make_pair(key, m_queue.begin()));
+    /*
+     Remove the node
+     */
+    detach(node);
     
-    clean();
+    /*
+     Attach the node
+     */
+    
+    attach(node);
+    node->key = key;
     
     TimerMeasure END = Timer::now();
     
     // Tracking
-    m_size = (int)m_map.size();
     if (m_size == m_capacity)
     {
         t_chrono += END - START;
@@ -52,22 +94,16 @@ void LRU::prefix(const std::string& prefix_key)
     TimerMeasure START = Timer::now();
     
     long counter = 0;
-    auto it = m_map.begin();
             
-    while (it != m_map.end())
+    for (int i = 0; i < m_size; i++)
     {
-        std::string key = it->first;
-        if (key.compare(0, prefix_key.size(), prefix_key) == 0)
+        if (m_block[i].key.compare(0, prefix_key.size(), prefix_key) == 0)
         {
             counter++;
             
-            m_queue.erase(it->second);
-            m_map.erase(it++);
-            
-            m_queue.push_front(key);
-            m_map.insert(make_pair(key, m_queue.begin()));
+            detach(m_block+i);
+            attach(m_block+i);
         }
-        else it++;
     }
     
     TimerMeasure END = Timer::now();
@@ -80,15 +116,26 @@ void LRU::prefix(const std::string& prefix_key)
     }
 }
 
-void LRU::clean()
+void LRU::detach(ListNode *node)
 {
-    while(m_map.size() > m_capacity)
-    {
-        m_map.erase(*m_queue.rbegin());
-        m_queue.pop_back();
-    }
+    if (node == m_back)  m_back  = node->previous;
+    if (node == m_front) m_front = node->next;
+    
+    if (node->previous) node->previous->next = node->next;
+    if (node->next)     node->next->previous = node->previous;
 }
 
+void LRU::attach(ListNode *node)
+{
+    node->previous  = nullptr;
+    node->next      = m_front;
+    
+    if (m_front) m_front->previous = node;
+    
+    if (m_size == 1) m_back = node;
+    
+    m_front = node;
+}
 
 int LRU::get_space()
 {
@@ -104,9 +151,12 @@ std::string LRU::to_string()
 {
     std::string str;
     
-    for (std::string& key : m_queue)
+    ListNode* node = m_front;
+    
+    while (node)
     {
-        str += key + " ";
+        str += node->key + " ";
+        node = node->next;
     }
     
     return str;

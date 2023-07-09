@@ -3,9 +3,20 @@
 OrderedLRU::OrderedLRU(int capacity)
 : CacheBase(capacity)
 {
-    m_queue.clear();
-    m_map.clear();
-    m_tree.clear();
+    m_block = new ListNode[m_capacity];
+    m_front = nullptr;
+    m_back = nullptr;
+    
+    for (int i = 0; i < m_capacity; i++)
+    {
+        m_block[i].previous = nullptr;
+        m_block[i].next     = nullptr;
+    }
+}
+
+OrderedLRU::~OrderedLRU()
+{
+    delete [] m_block;
 }
 
 
@@ -17,28 +28,59 @@ void OrderedLRU::insert(const std::string &key)
     
     TimerMeasure START = Timer::now();
     
-    auto it = m_map.find(key);
-    bool hit = (it != m_map.end());
+    std::unordered_map<std::string, ListNode*>::iterator hint = m_map.find(key);
+    bool hit = (hint != m_map.end());
     
-    if (hit)
+    /*
+     Select a node
+     */
+    
+    ListNode* node;
+    
+    if (!hit)
     {
-        m_queue.erase(it->second);
-        m_map.erase(it);
+        if (m_size < m_capacity)
+        {
+            node = &m_block[m_size];
+            m_size++;
+        }
+        else
+        {
+            node = m_back;
+            
+            m_map.erase(node->key);
+            m_tree.erase(node->key);
+            
+            // Tracking
+            if (m_tracking) t_deleted_ranks[100]++;
+        }
+        
+        m_map[key] = node;
+        m_tree[key] = node;
+    }
+    else
+    {
+        node = hint->second;
         
         // Tracking
         if (m_size == m_capacity) t_hits++;
     }
-    else m_tree.insert(make_pair(key, nullptr));
     
-    m_queue.push_front(key);
-    m_map.insert(make_pair(key, m_queue.begin()));
+    /*
+     Remove the node
+     */
+    detach(node);
+        
+    /*
+     Attach the node
+     */
     
-    clean();
-    
+    attach(node);
+    node->key = key;
+        
     TimerMeasure END = Timer::now();
     
     // Tracking
-    m_size = (int)m_map.size();
     if (m_size == m_capacity)
     {
         t_chrono += END - START;
@@ -61,19 +103,15 @@ void OrderedLRU::prefix(const std::string& prefix_key)
     long counter = 0;
     
     auto [ prefixBegin, prefixEnd ] = m_tree.equal_range(PrefixProbe{ prefix_key });
-    
+     
     for (auto it = prefixBegin; it != prefixEnd; ++it)
     {
-        auto map_it = m_map.find(it->first);
-        m_queue.erase(map_it->second);
-        m_map.erase(map_it);
-        
-        m_queue.push_front(it->first);
-        m_map.insert(make_pair(it->first, m_queue.begin()));
-        
+        detach(it->second);
+        attach(it->second);
+
         counter++;
     }
-        
+    
     TimerMeasure END = Timer::now();
     
     // Tracking
@@ -82,6 +120,27 @@ void OrderedLRU::prefix(const std::string& prefix_key)
         t_range_hits += counter;
         t_chrono_range += END - START;
     }
+}
+
+void OrderedLRU::detach(ListNode *node)
+{
+    if (node == m_back)  m_back  = node->previous;
+    if (node == m_front) m_front = node->next;
+    
+    if (node->previous) node->previous->next = node->next;
+    if (node->next)     node->next->previous = node->previous;
+}
+
+void OrderedLRU::attach(ListNode *node)
+{
+    node->previous  = nullptr;
+    node->next      = m_front;
+    
+    if (m_front) m_front->previous = node;
+    
+    if (m_size == 1) m_back = node;
+    
+    m_front = node;
 }
 
 
@@ -101,21 +160,13 @@ std::string OrderedLRU::to_string()
 {
     std::string str;
     
-    for (std::string& key : m_queue)
+    ListNode* node = m_front;
+    
+    while (node)
     {
-        str += key + " ";
+        str += node->key + " ";
+        node = node->next;
     }
     
     return str;
-}
-
-
-void OrderedLRU::clean()
-{
-    while(m_map.size() > m_capacity)
-    {
-        m_map.erase(*m_queue.rbegin());
-        m_tree.erase(*m_queue.rbegin());
-        m_queue.pop_back();
-    }
 }

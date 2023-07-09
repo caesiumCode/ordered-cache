@@ -7,7 +7,7 @@ class LRU : public CacheBase
 {
 public:
     LRU(int capacity);
-    ~LRU() = default;
+    ~LRU();
     
     void        insert(const std::string& key);
     void        prefix(const std::string& prefix_key);
@@ -17,11 +17,15 @@ public:
     std::string to_string();
     
 private:
-    std::list<std::string>                                      m_queue;
-    std::unordered_map<std::string, decltype(m_queue.begin())>  m_map;
+    ListNode* m_block;
+    ListNode* m_front;
+    ListNode* m_back;
+    
+    std::unordered_map<std::string, ListNode*> m_map;
     
 private:
-    void clean();
+    void detach(ListNode* node);
+    void attach(ListNode* node);
 };
 
 #endif /* LRU_hpp */

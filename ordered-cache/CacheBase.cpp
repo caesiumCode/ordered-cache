@@ -35,6 +35,9 @@ void CacheBase::get_statistics(std::string dataset_name, int w)
     std::cout << std::setw(w) << std::setw(w) << (t_ranges > 0 ? std::chrono::duration<double, std::micro>(t_chrono_range).count() / double(t_ranges) : 0) << std::endl;
 }
 
+//    apw-parsed          OLRU          1024         94696      0.686454      0.315658     0.0935532             0             0
+//    apw-parsed           LRU          1024         61928      0.686454      0.160623     0.0935404             0             0
+
 void CacheBase::get_tracking(std::string dataset_name)
 {
     std::cout << dataset_name << " ";
