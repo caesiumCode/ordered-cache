@@ -1,8 +1,8 @@
 #include <memory>
 
-#include "LRU.hpp"
-#include "OrderedLRU.hpp"
-#include "FixedCache.hpp"
+#include "HashModels/LRU.hpp"
+#include "HashModels/OrderedLRU.hpp"
+#include "HashModels/FixedCache.hpp"
 #include "TreeModels/STree.hpp"
 #include "TreeModels/MTRTree.hpp"
 #include "TreeModels/SETree.hpp"
