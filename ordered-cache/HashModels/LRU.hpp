@@ -1,23 +1,13 @@
 #ifndef LRU_hpp
 #define LRU_hpp
 
-#include "CacheBase.hpp"
-
-struct ListNode
-{
-    std::string key;
-    void*       value;
-    
-    ListNode* left;
-    ListNode* right;
-};
-
+#include "../CacheBase.hpp"
 
 class LRU : public CacheBase
 {
 public:
     LRU(int capacity);
-    ~LRU();
+    ~LRU() = default;
     
     void        insert(const std::string& key);
     void        prefix(const std::string& prefix_key);
@@ -27,15 +17,11 @@ public:
     std::string to_string();
     
 private:
-    ListNode* m_block;
-    ListNode* m_front;
-    ListNode* m_back;
-    
-    std::unordered_map<std::string, ListNode*> m_map;
+    std::list<std::string>                                      m_queue;
+    std::unordered_map<std::string, decltype(m_queue.begin())>  m_map;
     
 private:
-    void detach(ListNode* node);
-    void attach(ListNode* node);
+    void clean();
 };
 
 #endif /* LRU_hpp */

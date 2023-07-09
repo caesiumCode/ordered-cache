@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "LRU.hpp"
+#include "OrderedLRU.hpp"
 #include "FixedCache.hpp"
 #include "TreeModels/STree.hpp"
 #include "TreeModels/MTRTree.hpp"
@@ -32,13 +33,14 @@ int main(int argc, const char * argv[])
     int n = std::atoi(argv[3]);
     std::unique_ptr<CacheBase> cache;
     
-    if      (std::string(argv[4]) == "lru") cache = std::make_unique<LRU>(n);
-    else if (std::string(argv[4]) == "st")  cache = std::make_unique<STree>(n);
-    else if (std::string(argv[4]) == "lst") cache = std::make_unique<LSTree>(n);
-    else if (std::string(argv[4]) == "ast") cache = std::make_unique<ASTree>(n);
-    else if (std::string(argv[4]) == "mtr") cache = std::make_unique<MTRTree>(n);
-    else if (std::string(argv[4]) == "se")  cache = std::make_unique<SETree>(n);
-    else if (std::string(argv[4]) == "fc")  cache = std::make_unique<FixedCache>(n);
+    if      (std::string(argv[4]) == "lru")     cache = std::make_unique<LRU>(n);
+    else if (std::string(argv[4]) == "st")      cache = std::make_unique<STree>(n);
+    else if (std::string(argv[4]) == "lst")     cache = std::make_unique<LSTree>(n);
+    else if (std::string(argv[4]) == "ast")     cache = std::make_unique<ASTree>(n);
+    else if (std::string(argv[4]) == "mtr")     cache = std::make_unique<MTRTree>(n);
+    else if (std::string(argv[4]) == "se")      cache = std::make_unique<SETree>(n);
+    else if (std::string(argv[4]) == "fc")      cache = std::make_unique<FixedCache>(n);
+    else if (std::string(argv[4]) == "olru")    cache = std::make_unique<OrderedLRU>(n);
     else
     {
         std::cout << "INVALID ARGUMENT: Unknown model " << argv[4] << std::endl;

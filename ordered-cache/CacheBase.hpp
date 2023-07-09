@@ -12,9 +12,20 @@
 #include <set>
 #include <cmath>
 #include <functional>
+#include <list>
 
 using Timer         = std::chrono::high_resolution_clock;
 using TimerMeasure  = std::chrono::time_point<Timer>;
+
+struct ListNode
+{
+    std::string key;
+    void*       value;
+    
+    ListNode* previous;
+    ListNode* next;
+};
+
 
 class CacheBase
 {

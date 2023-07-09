@@ -1,7 +1,7 @@
 #ifndef FixedCache_hpp
 #define FixedCache_hpp
 
-#include "CacheBase.hpp"
+#include "../CacheBase.hpp"
 
 class FixedCache : public CacheBase
 {
