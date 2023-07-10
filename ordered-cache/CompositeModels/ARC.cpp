@@ -10,7 +10,8 @@ void ARC::insert(const std::string &key)
 {
     // Tracking
     t_age++;
-    if (T1.get_size() + B1.get_size() + T2.get_size() + B2.get_size() >= 2*m_capacity) t_age_full++;
+    long full_size = T1.get_size() + B1.get_size() + T2.get_size() + B2.get_size();
+    if (full_size >= 2*m_capacity) t_age_full++;
     bool hit;
     
     TimerMeasure START = Timer::now();
@@ -27,14 +28,14 @@ void ARC::insert(const std::string &key)
         T2.insert(key);
         
         hit = true;
-        t_hits++;
+        if (full_size >= 2*m_capacity) t_hits++;
     }
     if (T2.contains(node_T2))
     {
         T2.move_to_front(node_T2);
         
         hit = true;
-        t_hits++;
+        if (full_size >= 2*m_capacity) t_hits++;
     }
     else if (B1.contains(node_B1))
     {
@@ -48,7 +49,7 @@ void ARC::insert(const std::string &key)
         T2.insert(key);
         
         hit = true;
-        t_hits++;
+        if (full_size >= 2*m_capacity) t_hits++;
     }
     else if (B2.contains(node_B2))
     {
@@ -62,7 +63,7 @@ void ARC::insert(const std::string &key)
         T2.insert(key);
         
         hit = true;
-        t_hits++;
+        if (full_size >= 2*m_capacity) t_hits++;
     }
     else if (T1.get_size() + B1.get_size() == m_capacity)
     {
