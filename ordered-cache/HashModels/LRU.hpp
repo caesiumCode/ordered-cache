@@ -12,6 +12,12 @@ public:
     void        insert(const std::string& key);
     void        prefix(const std::string& prefix_key);
     
+    ListNode*   find(const std::string& key);
+    void        move_to_front(ListNode* node);
+    void        remove(ListNode* node);
+    std::string remove_lru();
+    int         get_size();
+    
     int         get_space();
     std::string get_name();
     std::string to_string();

@@ -1,5 +1,6 @@
 #include <memory>
 
+#include "CompositeModels/ARC.hpp"
 #include "HashModels/LRU.hpp"
 #include "HashModels/OrderedLRU.hpp"
 #include "HashModels/FixedCache.hpp"
@@ -41,6 +42,7 @@ int main(int argc, const char * argv[])
     else if (std::string(argv[4]) == "se")      cache = std::make_unique<SETree>(n);
     else if (std::string(argv[4]) == "fc")      cache = std::make_unique<FixedCache>(n);
     else if (std::string(argv[4]) == "olru")    cache = std::make_unique<OrderedLRU>(n);
+    else if (std::string(argv[4]) == "arc")     cache = std::make_unique<ARC>(n);
     else
     {
         std::cout << "INVALID ARGUMENT: Unknown model " << argv[4] << std::endl;
