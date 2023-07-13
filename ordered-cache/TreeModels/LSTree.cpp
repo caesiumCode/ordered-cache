@@ -49,9 +49,7 @@ void LSTree::insert(const std::string &key)
     // Tracking
     t_age++;
     if (m_size == m_capacity) t_age_full++;
-    
-    TimerMeasure START = Timer::now();
-    
+        
     LightTreeNode* node = find(key);
     bool hit = (node != nullptr && node->key == key);
     
@@ -60,25 +58,13 @@ void LSTree::insert(const std::string &key)
     
     // Cache miss
     else        insert_miss(key, node);
-    
-    TimerMeasure END = Timer::now();
-    
-    // Tracking
-    if (m_size == m_capacity)
-    {
-        t_chrono += END - START;
-        
-        if (hit) t_chrono_hit += END - START;
-    }
 }
 
 void LSTree::prefix(const std::string& prefix_key)
 {
     // Tracking
     if (m_size == m_capacity) t_ranges++;
-    
-    TimerMeasure START = Timer::now();
-    
+        
     long counter = 0;
         
     //std::vector<LightTreeNode*> range;
@@ -103,15 +89,9 @@ void LSTree::prefix(const std::string& prefix_key)
     }
     
     //for (LightTreeNode* node : range) if (node != m_root) splay(node);
-    
-    TimerMeasure END = Timer::now();
-    
+        
     // Tracking
-    if (m_size == m_capacity)
-    {
-        t_range_hits += counter;
-        t_chrono_range += END - START;
-    }
+    if (m_size == m_capacity) t_range_hits += counter;
 }
 
 void LSTree::insert_miss(const std::string &key, LightTreeNode *node)

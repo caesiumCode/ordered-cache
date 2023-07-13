@@ -30,10 +30,6 @@ int main(int argc, const char * argv[])
     std::string path    = std::string(argv[1]);
     std::string dataset = std::string(argv[2]);
     
-    const int   LINE_BUFFER_SIZE = 1 << 10;
-    char        line_buffer[LINE_BUFFER_SIZE];
-    std::FILE* fp = std::fopen((path + dataset).c_str(), "r");
-    
     // Set cache
     int n = std::atoi(argv[3]);
     std::unique_ptr<CacheBase> cache;
@@ -67,24 +63,7 @@ int main(int argc, const char * argv[])
     if (argc == 8) prefix_offset = std::atoi(argv[7]);
         
     // Test cache
-    while (std::fgets(line_buffer, sizeof(line_buffer), fp))
-    {
-        std::string key(line_buffer);
-        if (key.back() == '\n') key.pop_back();
-        
-        cache->insert(key);
-        
-        if (prefix)
-        {
-            int s = (int)key.size();
-            while (s > 1 && key[s-1] != '/') s--;
-            if (s == 1) s = (int)key.size();
-
-            cache->prefix(key.substr(0, s+prefix_offset));
-        }
-    }
-        
-    std::fclose(fp);
+    cache->test(path, dataset, prefix, prefix_offset);
     
     // Output
     if (tracking)   cache->get_tracking(dataset);

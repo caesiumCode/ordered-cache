@@ -25,9 +25,7 @@ void OrderedLRU::insert(const std::string &key)
     // Tracking
     t_age++;
     if (m_size == m_capacity) t_age_full++;
-    
-    TimerMeasure START = Timer::now();
-    
+        
     std::unordered_map<std::string, ListNode*>::iterator hint = m_map.find(key);
     bool hit = (hint != m_map.end());
     
@@ -77,16 +75,6 @@ void OrderedLRU::insert(const std::string &key)
     
     attach(node);
     node->key = key;
-        
-    TimerMeasure END = Timer::now();
-    
-    // Tracking
-    if (m_size == m_capacity)
-    {
-        t_chrono += END - START;
-        
-        if (hit) t_chrono_hit += END - START;
-    }
 }
 
 struct PrefixProbe { std::string_view prefix; };
@@ -97,9 +85,7 @@ void OrderedLRU::prefix(const std::string& prefix_key)
 {
     // Tracking
     if (m_size == m_capacity) t_ranges++;
-    
-    TimerMeasure START = Timer::now();
-    
+        
     long counter = 0;
     
     auto [ prefixBegin, prefixEnd ] = m_tree.equal_range(PrefixProbe{ prefix_key });
@@ -111,15 +97,9 @@ void OrderedLRU::prefix(const std::string& prefix_key)
 
         counter++;
     }
-    
-    TimerMeasure END = Timer::now();
-    
+        
     // Tracking
-    if (m_size == m_capacity)
-    {
-        t_range_hits += counter;
-        t_chrono_range += END - START;
-    }
+    if (m_size == m_capacity) t_range_hits += counter;
 }
 
 void OrderedLRU::detach(ListNode *node)

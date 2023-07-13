@@ -21,21 +21,18 @@ void ARC<LruT>::insert(const std::string &key)
     if (full_size >= m_capacity) t_age_full++;
     bool hit;
     
-    TimerMeasure START = Timer::now();
     
     if (T1.find(key))
     {
         T1.move_last_hit_to_mru(T2);
         
         hit = true;
-        if (full_size >= m_capacity) t_hits++;
     }
     else if (T2.find(key))
     {
         T2.move_last_hit_to_front();
         
         hit = true;
-        if (full_size >= m_capacity) t_hits++;
     }
     else if (B1.find(key))
     {
@@ -49,7 +46,6 @@ void ARC<LruT>::insert(const std::string &key)
         B1.move_last_hit_to_mru(T2);
         
         hit = true;
-        if (full_size >= m_capacity) t_hits++;
     }
     else if (B2.find(key))
     {
@@ -63,7 +59,6 @@ void ARC<LruT>::insert(const std::string &key)
         B2.move_last_hit_to_mru(T2);
         
         hit = true;
-        if (full_size >= m_capacity) t_hits++;
     }
     else if (T1.size() + B1.size() == c)
     {
@@ -92,10 +87,7 @@ void ARC<LruT>::insert(const std::string &key)
     }
     
     // Tracking
-    TimerMeasure END = Timer::now();
-    t_chrono += END - START;
-    
-    if (hit) t_chrono_hit += END - START;
+    if (full_size >= m_capacity) t_hits += hit;
 }
 
 template<typename LruT>
