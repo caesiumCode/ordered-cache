@@ -2,8 +2,8 @@
 #define ARC_hpp
 
 #include "../CacheBase.hpp"
-#include "ALRU.hpp"
 
+template<typename LruT>
 class ARC : public CacheBase
 {
 public:
@@ -18,12 +18,15 @@ public:
     std::string to_string();
     
 private:
-    ALRU T1;
-    ALRU B1;
-    ALRU T2;
-    ALRU B2;
+    LruT T1;
+    LruT B1;
+    LruT T2;
+    LruT B2;
     
-    int p;
+    uint64_t c;
+    uint64_t p;
+    
+    //std::string tmp, tmp2;
     
 private:
     void replace(bool is_in_B2);

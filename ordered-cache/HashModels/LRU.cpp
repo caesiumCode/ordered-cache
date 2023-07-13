@@ -116,53 +116,6 @@ void LRU::prefix(const std::string& prefix_key)
     }
 }
 
-ListNode* LRU::find(const std::string &key)
-{
-    std::unordered_map<std::string, ListNode*>::iterator it = m_map.find(key);
-    
-    if (it != m_map.end())  return it->second;
-    else                    return nullptr;
-}
-
-void LRU::move_to_front(ListNode *node)
-{
-    detach(node);
-    attach(node);
-}
-
-void LRU::remove(ListNode *node)
-{
-    detach(node);
-    m_map.erase(node->key);
-    
-    ListNode* end_node = m_block + (m_size-1);
-    std::swap(node->key,        end_node->key);
-    std::swap(node->value,      end_node->value);
-    std::swap(node->previous,   end_node->previous);
-    std::swap(node->next,       end_node->next);
-    
-    if (m_back == end_node)  m_back  = node;
-    if (m_front == end_node) m_front = node;
-    
-    if (node->previous) node->previous->next = node;
-    if (node->next)     node->next->previous = node;
-    
-    m_size--;
-}
-
-std::string LRU::remove_lru()
-{
-    std::string key = m_block->key;
-    
-    remove(m_block);
-    
-    return key;
-}
-
-int LRU::get_size()
-{
-    return m_size;
-}
 
 void LRU::detach(ListNode *node)
 {

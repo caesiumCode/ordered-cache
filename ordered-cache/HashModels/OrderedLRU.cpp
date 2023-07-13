@@ -146,7 +146,7 @@ void OrderedLRU::attach(ListNode *node)
 
 int OrderedLRU::get_space()
 {
-    return (int) 8 * m_map.bucket_count() + (8 + 8) * m_size + m_capacity * 8 * 4 + (int)m_tree.size() * 8 * 4;
+    return 8 * int(m_map.bucket_count()) + (8 + 8) * int(m_size) + m_capacity * 8 * 4 + int(m_tree.size()) * 8 * 4;
 }
 
 
