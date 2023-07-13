@@ -271,19 +271,10 @@ void LeafQueueBase::remove_leaf_queue(TreeNode* node)
 {
     if (!node->leaf) return;
         
-    if (m_size == 1)
+    if (m_leaf_queue_front == m_leaf_queue_back)
     {
         m_leaf_queue_front = nullptr;
         m_leaf_queue_back = nullptr;
-    }
-    else if (m_leaf_queue_front == m_leaf_queue_back)
-    {
-        m_leaf_queue_front = node->parent;
-        m_leaf_queue_back  = node->parent;
-        
-        m_leaf_queue_front->leaf = true;
-        m_leaf_queue_front->left = nullptr;
-        m_leaf_queue_front->right = nullptr;
     }
     else if (node == m_leaf_queue_front)
     {
