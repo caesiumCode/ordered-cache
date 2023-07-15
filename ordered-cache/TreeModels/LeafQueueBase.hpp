@@ -83,6 +83,9 @@ private:
     
     void        insert_hit(const std::string& key, TreeNode* node);
     void        insert_miss(const std::string& key, TreeNode* node);
+    
+    // Leaf Queue update
+    void move_to_back(TreeNode* node);
 };
 
 #endif /* LeafQueueBase_hpp */

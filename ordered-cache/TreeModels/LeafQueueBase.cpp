@@ -73,51 +73,45 @@ void LeafQueueBase::prefix(const std::string& prefix_key)
     if (m_size == m_capacity) t_ranges++;
         
     long counter = 0;
-        
-    std::vector<TreeNode*> stack = {m_root};
+    
+    enum BOUND
+    {
+        NOTHING,
+        LEFT,
+        RIGHT,
+        BOTH
+    };
+    std::vector<std::pair<TreeNode*, BOUND>> stack = {{m_root, NOTHING}};
     if (m_root == nullptr) stack.clear();
     
     while (!stack.empty())
     {
-        TreeNode* node = stack.back();
+        auto [node, bound] = stack.back();
         stack.pop_back();
         
-        int comp = node->key.compare(0, prefix_key.size(), prefix_key);
-        if (comp == 0)
+        if (bound == BOTH)
         {
             counter++;
-            if (node->leaf)
+            if (node->leaf && node != m_leaf_queue_back) move_to_back(node);
+            if (!node->leaf && node->right) stack.push_back(std::make_pair(node->right, BOTH));
+            if (!node->leaf && node->left)  stack.push_back(std::make_pair(node->left, BOTH));
+        }
+        else
+        {
+            int comp = node->key.compare(0, prefix_key.size(), prefix_key);
+            if (comp == 0)
             {
-                if (node != m_leaf_queue_back)
+                counter++;
+                if (node->leaf && node != m_leaf_queue_back) move_to_back(node);
+                else
                 {
-                    // Detach from the leaf queue
-                    if (node == m_leaf_queue_front)
-                    {
-                        m_leaf_queue_front = m_leaf_queue_front->right;
-                        m_leaf_queue_front->left = nullptr;
-                    }
-                    else
-                    {
-                        if (node->left != nullptr)  node->left->right = node->right;
-                        if (node->right != nullptr) node->right->left = node->left;
-                    }
-                    
-                    
-                    // Append at the back of the queue
-                    node->left = m_leaf_queue_back;
-                    node->right = nullptr;
-                    m_leaf_queue_back->right = node;
-                    m_leaf_queue_back = node;
+                    if (node->right) stack.push_back(std::make_pair(node->right, bound == RIGHT ? BOTH : LEFT));
+                    if (node->left)  stack.push_back(std::make_pair(node->left,  bound == LEFT  ? BOTH : RIGHT));
                 }
             }
-            else
-            {
-                if (node->right) stack.push_back(node->right);
-                if (node->left) stack.push_back(node->left);
-            }
+            else if (comp < 0 && !node->leaf && node->right) stack.push_back(std::make_pair(node->right, bound));
+            else if (comp > 0 && !node->leaf && node->left)  stack.push_back(std::make_pair(node->left,  bound));
         }
-        else if (comp < 0 && !node->leaf && node->right) stack.push_back(node->right);
-        else if (comp > 0 && !node->leaf && node->left) stack.push_back(node->left);
     }
     
     // Tracking
@@ -298,6 +292,28 @@ void LeafQueueBase::remove_leaf_queue(TreeNode* node)
     
     // Tracking
     if (m_tracking) update_leafset(-1);
+}
+
+void LeafQueueBase::move_to_back(TreeNode *node)
+{
+    // Detach from the leaf queue
+    if (node == m_leaf_queue_front)
+    {
+        m_leaf_queue_front = m_leaf_queue_front->right;
+        m_leaf_queue_front->left = nullptr;
+    }
+    else
+    {
+        if (node->left != nullptr)  node->left->right = node->right;
+        if (node->right != nullptr) node->right->left = node->left;
+    }
+    
+    
+    // Append at the back of the queue
+    node->left = m_leaf_queue_back;
+    node->right = nullptr;
+    m_leaf_queue_back->right = node;
+    m_leaf_queue_back = node;
 }
 
 int LeafQueueBase::get_space()
