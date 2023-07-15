@@ -74,13 +74,12 @@ void LeafQueueBase::prefix(const std::string& prefix_key)
         
     long counter = 0;
     
-    enum BOUND
-    {
-        NOTHING,
-        LEFT,
-        RIGHT,
-        BOTH
-    };
+    using BOUND = uint8_t;
+    const BOUND NOTHING = 0;
+    const BOUND LEFT    = 1;
+    const BOUND RIGHT   = 2;
+    const BOUND BOTH    = 3;
+    
     std::vector<std::pair<TreeNode*, BOUND>> stack = {{m_root, NOTHING}};
     if (m_root == nullptr) stack.clear();
     
@@ -93,8 +92,8 @@ void LeafQueueBase::prefix(const std::string& prefix_key)
         {
             counter++;
             if (node->leaf && node != m_leaf_queue_back) move_to_back(node);
-            if (!node->leaf && node->right) stack.push_back(std::make_pair(node->right, BOTH));
-            if (!node->leaf && node->left)  stack.push_back(std::make_pair(node->left, BOTH));
+            if (!node->leaf && node->right) stack.emplace_back(node->right, BOTH);
+            if (!node->leaf && node->left)  stack.emplace_back(node->left, BOTH);
         }
         else
         {
@@ -105,12 +104,12 @@ void LeafQueueBase::prefix(const std::string& prefix_key)
                 if (node->leaf && node != m_leaf_queue_back) move_to_back(node);
                 else
                 {
-                    if (node->right) stack.push_back(std::make_pair(node->right, bound == RIGHT ? BOTH : LEFT));
-                    if (node->left)  stack.push_back(std::make_pair(node->left,  bound == LEFT  ? BOTH : RIGHT));
+                    if (node->right) stack.emplace_back(node->right, bound | LEFT);
+                    if (node->left)  stack.emplace_back(node->left,  bound | RIGHT);
                 }
             }
-            else if (comp < 0 && !node->leaf && node->right) stack.push_back(std::make_pair(node->right, bound));
-            else if (comp > 0 && !node->leaf && node->left)  stack.push_back(std::make_pair(node->left,  bound));
+            else if (comp < 0 && !node->leaf && node->right) stack.emplace_back(node->right, bound);
+            else if (comp > 0 && !node->leaf && node->left)  stack.emplace_back(node->left,  bound);
         }
     }
     
