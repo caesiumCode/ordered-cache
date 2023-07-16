@@ -2,6 +2,10 @@
 #include <string>
 #include <unordered_set>
 #include <iomanip>
+#include <chrono>
+
+using Timer         = std::chrono::high_resolution_clock;
+using TimerMeasure  = std::chrono::time_point<Timer>;
 
 /*
  ./program <path> <dataset>
@@ -23,6 +27,19 @@ int main(int argc, const char * argv[])
     std::unordered_set<std::string> key_set;
     
     // Read dataset
+    TimerMeasure START = Timer::now();
+    while (std::fgets(line_buffer, sizeof(line_buffer), fp))
+    {
+        std::string key(line_buffer);
+        if (key.back() == '\n') key.pop_back();
+        
+        stream_size++;
+    }
+    TimerMeasure END = Timer::now();
+    
+    // Read dataset
+    stream_size = 0;
+    std::rewind(fp);
     while (std::fgets(line_buffer, sizeof(line_buffer), fp))
     {
         std::string key(line_buffer);
@@ -41,7 +58,9 @@ int main(int argc, const char * argv[])
     std::cout << std::setw(w) << dataset;
     std::cout << std::setw(w) << key_set.size();
     std::cout << std::setw(w) << stream_size;
-    std::cout << std::setw(w) << double(key_size) / double(stream_size) << std::endl;
+    std::cout << std::setw(w) << double(key_size) / double(stream_size);
+    std::cout << std::setw(w) << std::chrono::duration<double, std::micro>(END - START).count();
+    std::cout << std::endl;
     
     return EXIT_SUCCESS;
 }

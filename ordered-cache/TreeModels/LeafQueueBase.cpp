@@ -93,7 +93,7 @@ void LeafQueueBase::prefix(const std::string& prefix_key)
             counter++;
             if (node->leaf && node != m_leaf_queue_back) move_to_back(node);
             if (!node->leaf && node->right) stack.emplace_back(node->right, BOTH);
-            if (!node->leaf && node->left)  stack.emplace_back(node->left, BOTH);
+            if (!node->leaf && node->left)  stack.emplace_back(node->left,  BOTH);
         }
         else
         {
